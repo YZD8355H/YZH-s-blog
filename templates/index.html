@@ -4,19 +4,21 @@
 
 {% block content %}
 <header class="hero">
+  <div class="hero-badge"><span class="badge-dot"></span> yzh@blog:~$ whoami → {{ site.author }}</div>
+  <h1 class="hero-title">Hi, I'm <span class="hero-accent">YZH</span></h1>
+  <p class="hero-sub">{{ site.description }}</p>
+
   <div class="hero-terminal">
     <div class="terminal-bar">
       <span class="cb-dots"><i></i><i></i><i></i></span>
       <span class="terminal-title">yzh@blog: <span class="t-green">~</span></span>
     </div>
     <div class="terminal-body">
-      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">whoami</span></p>
-      <p class="t-out">{{ site.author }} —— 一名写代码的人</p>
       <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">cat about.txt</span></p>
-      <p class="t-out"><span id="typewriter" data-text="{{ site.description }}"></span><span class="t-cursor"></span></p>
+      <p class="t-out"><span id="typewriter" data-text="{{ site.description }}"></span><span class="t-cursor" id="tw-cursor"></span></p>
       <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">ls posts/ | wc -l</span></p>
       <p class="t-out"><span class="t-num">{{ total_posts }}</span></p>
-      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">tail -f posts/ --latest</span><span class="t-cursor"></span></p>
+      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">tail -f posts/ --latest</span><span class="t-cursor" id="tail-cursor" hidden></span></p>
     </div>
   </div>
 </header>
@@ -30,7 +32,7 @@
       <span class="cat-badge">{{ post.category }}</span>
       {% endif %}
     </div>
-    <h2 class="post-title"><a href="{{ root }}/{{ post.url }}">{{ post.title }}</a></h2>
+    <h2 class="post-title"><a href="{{ root }}/{{ post.url }}">{{ post.title }}</a>{% if post.is_new %}<span class="new-badge">NEW</span>{% endif %}</h2>
     <p class="post-summary">{{ post.summary }}</p>
     <div class="post-tags">
       {% for tag in post.tags %}

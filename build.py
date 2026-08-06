@@ -23,7 +23,7 @@ from urllib.parse import quote, unquote
 
 import markdown
 import yaml
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 from pygments import highlight as pyg_highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import TextLexer, get_lexer_by_name
@@ -126,6 +126,9 @@ def strip_html(html_text: str) -> str:
 
 # ---------------------------------------------------------------- frontmatter
 DATE_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})-?(.*)\.md$")
+# Windows 文件名非法字符（标签会用作目录名）
+INVALID_TAG_CHARS = set('<>:"/\\|?*')
+NEW_POST_DAYS = 30  # 距发布多少天内标记为 NEW
 
 
 def parse_frontmatter(path: Path):
@@ -216,6 +219,10 @@ def load_posts(content_dir: Path, md) -> list[dict]:
             tags = [t.strip() for t in tags.split(",") if t.strip()]
         tags = [{"name": str(t).strip(), "url": quote(str(t).strip(), safe="")}
                 for t in tags if str(t).strip()]
+        bad_tags = [t["name"] for t in tags if set(t["name"]) & INVALID_TAG_CHARS]
+        if bad_tags:
+            error(f"{path.name}: 标签含非法字符（标签会作为目录名）: {', '.join(bad_tags)}")
+            tags = [t for t in tags if not (set(t["name"]) & INVALID_TAG_CHARS)]
 
         html_body = md_to_html(md, body)
         text = strip_html(html_body)
@@ -228,6 +235,7 @@ def load_posts(content_dir: Path, md) -> list[dict]:
             "date": date,
             "date_str": date.isoformat(),
             "year": date.year,
+            "is_new": 0 <= (dt.date.today() - date).days <= NEW_POST_DAYS,
             "tags": tags,
             "category": (fm.get("category") or "").strip(),
             "summary": summary,
@@ -262,6 +270,7 @@ def build_pages(posts, pages, config) -> list[dict]:
     env = Environment(
         loader=FileSystemLoader(ROOT / "templates"),
         autoescape=select_autoescape(["html", "xml"]),
+        undefined=StrictUndefined,  # 模板变量缺失/拼错 → 构建直接报错，防止静默产出坏页面
     )
     site_cfg = config["site"]
     social = config["social"]
