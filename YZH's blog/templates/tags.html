@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}标签 · {{ site.title }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="term-line"><span class="term-prompt">~ ❯</span> ls tags/</div>
+  <h1 class="page-title">标签</h1>
+</header>
+
+<div class="tag-cloud">
+  {% for tag, posts in tag_items %}
+  <a class="tag-chip tag-cloud-chip size-{{ [posts | length, 3] | min }}" href="{{ root }}/tags/{{ tag.url }}/">
+    #{{ tag.name }}<span class="tag-count">{{ posts | length }}</span>
+  </a>
+  {% else %}
+  <p class="empty">暂无标签。</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>搜索 · YZH的Blog</title>
+<meta name="description" content="YZH 的技术博客：编程、开发经验与教程">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/highlight.css">
+</head>
+<body>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="logo" href="../">
+      <span class="logo-prompt">❯</span><span class="logo-name">YZH的Blog</span>
+    </a>
+    <div class="nav-links">
+      <a href="../">文章</a>
+      <a href="../archive/">归档</a>
+      <a href="../tags/">标签</a>
+      <a href="../search/">搜索</a>
+      
+      <a href="../about/">关于</a>
+      
+      <a href="../links/">友链</a>
+      
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+<header class="page-head">
+  <div class="term-line"><span class="term-prompt">~ ❯</span> grep --full-text</div>
+  <h1 class="page-title">搜索</h1>
+</header>
+
+<div class="search-box">
+  <span class="search-prompt">❯</span>
+  <input id="search-input" type="search" placeholder="输入关键词，回车或直接输入即时搜索…" autofocus autocomplete="off">
+</div>
+
+<div id="search-results" class="search-results">
+  <p class="search-hint">支持标题、摘要、正文全文匹配；多个关键词用空格分隔（AND）。</p>
+</div>
+
+<script>
+  const INDEX_URL = "../search-index.json";
+</script>
+<script src="../assets/search.js"></script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-status"><i class="dot"></i> © 2026 YZH · YZH的Blog</span>
+    <span class="footer-links">
+      <a href="https://github.com/" rel="noopener" target="_blank">github</a>
+      
+    </span>
+  </div>
+</footer>
+</body>
+</html>

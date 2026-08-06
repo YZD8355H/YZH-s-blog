@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>友链 · YZH的Blog</title>
+<meta name="description" content="YZH 的技术博客：编程、开发经验与教程">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/highlight.css">
+</head>
+<body>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="logo" href="../">
+      <span class="logo-prompt">❯</span><span class="logo-name">YZH的Blog</span>
+    </a>
+    <div class="nav-links">
+      <a href="../">文章</a>
+      <a href="../archive/">归档</a>
+      <a href="../tags/">标签</a>
+      <a href="../search/">搜索</a>
+      
+      <a href="../about/">关于</a>
+      
+      <a href="../links/">友链</a>
+      
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+<article class="page">
+  <header class="page-head">
+    <div class="term-line"><span class="term-prompt">~ ❯</span> cat links.md</div>
+    <h1 class="page-title">友链</h1>
+  </header>
+  <div class="page-body">
+    <h1>友链</h1>
+<p>这里的友链条目统一维护在 <code>config.yaml</code> 的 <code>links</code> 字段中：</p>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">yaml</span></div><div class="highlight"><span class="nt">links</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;站点名&quot;</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://example.com&quot;</span>
+<span class="w">    </span><span class="nt">desc</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;一句话介绍&quot;</span>
+</div></div>
+<p>修改后重新运行 <code>uv run build.py</code> 即可生效。当前收录：</p>
+<!-- links 由 config.yaml 自动渲染，以下为构建时的实际内容占位 -->
+    
+    <div class="link-list">
+      
+      <a class="link-card" href="https://example.com" rel="noopener" target="_blank">
+        <span class="link-card-name">示例友链A</span>
+        <span class="link-card-desc">占位说明，在 config.yaml 里修改</span>
+        <span class="link-card-url">https://example.com</span>
+      </a>
+      
+      <a class="link-card" href="https://example.org" rel="noopener" target="_blank">
+        <span class="link-card-name">示例友链B</span>
+        <span class="link-card-desc">占位说明，在 config.yaml 里修改</span>
+        <span class="link-card-url">https://example.org</span>
+      </a>
+      
+    </div>
+    
+  </div>
+</article>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-status"><i class="dot"></i> © 2026 YZH · YZH的Blog</span>
+    <span class="footer-links">
+      <a href="https://github.com/" rel="noopener" target="_blank">github</a>
+      
+    </span>
+  </div>
+</footer>
+</body>
+</html>

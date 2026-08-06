@@ -1,0 +1,28 @@
+# ============ YZH的Blog 站点配置 ============
+# 修改后重新运行 uv run build.py 即可生效
+
+site:
+  title: "YZH的Blog"          # 博客名（导航/页头）
+  author: "YZH"               # 作者署名（页脚/文章底部）
+  description: "YZH 的技术博客：编程、开发经验与教程"
+  since: 2026                 # 建站年份（页脚 © 显示用）
+  language: zh-CN
+
+# 社交链接（页脚显示，不想要就留空）
+social:
+  github: "https://github.com/"
+  email: ""
+
+# 友链（友链页显示，name + url + desc）
+links:
+  - name: "示例友链A"
+    url: "https://example.com"
+    desc: "占位说明，在 config.yaml 里修改"
+  - name: "示例友链B"
+    url: "https://example.org"
+    desc: "占位说明，在 config.yaml 里修改"
+
+# 构建参数
+build:
+  posts_per_page: 8           # 首页每页文章数
+  site_dir: "site"            # 输出目录

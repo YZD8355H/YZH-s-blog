@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}搜索 · {{ site.title }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="term-line"><span class="term-prompt">~ ❯</span> grep --full-text</div>
+  <h1 class="page-title">搜索</h1>
+</header>
+
+<div class="search-box">
+  <span class="search-prompt">❯</span>
+  <input id="search-input" type="search" placeholder="输入关键词，回车或直接输入即时搜索…" autofocus autocomplete="off">
+</div>
+
+<div id="search-results" class="search-results">
+  <p class="search-hint">支持标题、摘要、正文全文匹配；多个关键词用空格分隔（AND）。</p>
+</div>
+
+<script>
+  const INDEX_URL = "{{ root }}/search-index.json";
+</script>
+<script src="{{ root }}/assets/search.js"></script>
+{% endblock %}
