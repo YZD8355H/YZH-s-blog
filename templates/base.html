@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ site.title }}{% endblock %}</title>
 <meta name="description" content="{{ site.description }}">
+<meta name="theme-color" content="#0f1117">
 <link rel="icon" href="{{ root }}/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{{ root }}/assets/style.css">
 <link rel="stylesheet" href="{{ root }}/assets/highlight.css">
 </head>
 <body>
+<div id="scroll-progress"></div>
 <nav class="site-nav">
   <div class="nav-inner">
     <a class="logo" href="{{ root }}/">
@@ -33,12 +35,19 @@
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <span class="footer-status"><i class="dot"></i> © {{ site.since }} {{ site.author }} · {{ site.title }}</span>
+    <span class="footer-status"><i class="dot"></i> [ok] 状态在线</span>
+    <span class="footer-meta">
+      <span>主题: <b class="m-green">tokyo-night</b></span>
+      <span>文章: <b>{{ post_count }}</b></span>
+      <span>构建: <b>{{ build_time }}</b></span>
+      <span>© {{ site.since }} {{ site.author }}</span>
+    </span>
     <span class="footer-links">
       {% if social.github %}<a href="{{ social.github }}" rel="noopener" target="_blank">github</a>{% endif %}
       {% if social.email %}<a href="mailto:{{ social.email }}">email</a>{% endif %}
     </span>
   </div>
 </footer>
+<script src="{{ root }}/assets/terminal.js"></script>
 </body>
 </html>

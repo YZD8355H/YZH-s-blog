@@ -3,10 +3,22 @@
 {% block title %}{{ site.title }} · {{ site.description }}{% endblock %}
 
 {% block content %}
-<header class="page-head">
-  <div class="term-line"><span class="term-prompt">~ ❯</span> ls posts/</div>
-  <h1 class="page-title">{{ site.description }}</h1>
-  <p class="page-sub">共 {{ posts | length }} 篇文章 · 按时间倒序</p>
+<header class="hero">
+  <div class="hero-terminal">
+    <div class="terminal-bar">
+      <span class="cb-dots"><i></i><i></i><i></i></span>
+      <span class="terminal-title">yzh@blog: <span class="t-green">~</span></span>
+    </div>
+    <div class="terminal-body">
+      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">whoami</span></p>
+      <p class="t-out">{{ site.author }} —— 一名写代码的人</p>
+      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">cat about.txt</span></p>
+      <p class="t-out"><span id="typewriter" data-text="{{ site.description }}"></span><span class="t-cursor"></span></p>
+      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">ls posts/ | wc -l</span></p>
+      <p class="t-out"><span class="t-num">{{ total_posts }}</span></p>
+      <p class="t-line"><span class="t-prompt">yzh@blog:~$</span> <span class="t-cmd">tail -f posts/ --latest</span><span class="t-cursor"></span></p>
+    </div>
+  </div>
 </header>
 
 <section class="post-list">

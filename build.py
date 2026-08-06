@@ -277,6 +277,8 @@ def build_pages(posts, pages, config) -> list[dict]:
         "site": site_cfg,
         "social": social,
         "nav_pages": pages,
+        "post_count": len(posts),
+        "build_time": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
     generated = []  # [(相对路径, 模板名)]
 
@@ -295,7 +297,8 @@ def build_pages(posts, pages, config) -> list[dict]:
         rel = Path("index.html") if page_no == 1 else Path(f"page/{page_no}/index.html")
         render_to(rel, "index.html", {
             **ctx_base, "root": "." if page_no == 1 else "../..",
-            "posts": chunk, "page_no": page_no, "total_pages": total_pages,
+            "posts": chunk, "total_posts": n,
+            "page_no": page_no, "total_pages": total_pages,
             "prev_no": prev_no, "next_no": next_no,
         })
 
