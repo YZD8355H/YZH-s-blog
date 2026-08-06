@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git 分支策略：个人项目与团队协作的实践 · YZH的Blog</title>
+<meta name="description" content="YZH 的技术博客：编程、开发经验与教程">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/highlight.css">
+</head>
+<body>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="logo" href="../">
+      <span class="logo-prompt">❯</span><span class="logo-name">YZH的Blog</span>
+    </a>
+    <div class="nav-links">
+      <a href="../">文章</a>
+      <a href="../archive/">归档</a>
+      <a href="../tags/">标签</a>
+      <a href="../search/">搜索</a>
+      
+      <a href="../about/">关于</a>
+      
+      <a href="../links/">友链</a>
+      
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+<article class="post">
+  <header class="post-head">
+    <div class="post-meta">
+      <time class="post-date" datetime="2026-06-15">2026-06-15</time>
+      <span class="cat-badge">开发</span>
+      
+      <a class="tag-chip" href="../tags/Git/">#Git</a>
+      
+      <a class="tag-chip" href="../tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/">#工作流</a>
+      
+    </div>
+    <h1 class="post-title">Git 分支策略：个人项目与团队协作的实践</h1>
+    <div class="post-author">written by <span class="author-name">YZH</span></div>
+  </header>
+
+  <div class="post-body">
+    <p>分支策略是团队协作的地基。选错了，合并冲突会天天教做人；选对了，它安静得让人忘记它的存在。</p>
+<h2>三种主流策略</h2>
+<h3>GitHub Flow —— 极简主义</h3>
+<p>只有一条长期分支 <code>main</code>，所有开发在短命分支上进行：</p>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">bash</span></div><div class="highlight"><span class="c1"># 从 main 拉分支</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/login
+
+<span class="c1"># 提交、推送、开 PR 审查</span>
+git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>feature/login
+
+<span class="c1"># 合并后删除分支</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>pull
+git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>feature/login
+</div></div>
+<p><strong>适合</strong>：持续部署的团队、个人项目。规则只有一条：<code>main</code> 永远可部署。</p>
+<h3>Git Flow —— 完整仪式感</h3>
+<p>长期分支有 <code>main</code>（发布）和 <code>develop</code>（开发），短期分支有 <code>feature</code>、<code>release</code>、<code>hotfix</code>：</p>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">bash</span></div><div class="highlight"><span class="c1"># 功能开发从 develop 分支</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/xxx<span class="w"> </span>develop
+
+<span class="c1"># 发布时拉 release 分支，只修 bug 不添功能</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>release/v1.2<span class="w"> </span>develop
+
+<span class="c1"># 线上紧急修复走 hotfix</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>hotfix/critical<span class="w"> </span>main
+</div></div>
+<p><strong>适合</strong>：有固定发布周期的产品。缺点是仪式感太强，个人项目往往用不上。</p>
+<h3>Trunk-Based —— 主干开发</h3>
+<p>所有人在 <code>main</code> 上开发，用<strong>短命分支 + 频繁合并</strong>控制风险：</p>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">bash</span></div><div class="highlight">git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>fix/typo
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: 修正错别字&quot;</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>pull<span class="w"> </span>--rebase
+git<span class="w"> </span>merge<span class="w"> </span>fix/typo<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>push
+</div></div>
+<p><strong>适合</strong>：小团队、追求快速迭代。核心思想是分支存活时间不超过一两天。</p>
+<h2>提交信息的习惯</h2>
+<p>分支策略之外，提交信息是第二重要的习惯。约定俗成的格式：</p>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">text</span></div><div class="highlight">feat: 新增登录功能
+fix: 修复并发下的资源泄漏
+docs: 更新 README
+refactor: 重构配置加载逻辑
+test: 补充边界用例
+</div></div>
+<h2>我的选择</h2>
+<table>
+<thead>
+<tr>
+<th>项目类型</th>
+<th>策略</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>个人博客/玩具项目</td>
+<td>GitHub Flow</td>
+<td>一条 main 走天下</td>
+</tr>
+<tr>
+<td>开源库</td>
+<td>GitHub Flow + 严格 PR 审查</td>
+<td>社区协作标准</td>
+</tr>
+<tr>
+<td>有版本的商业产品</td>
+<td>Git Flow</td>
+<td>release 分支天然对应版本号</td>
+</tr>
+<tr>
+<td>3-5 人快速迭代团队</td>
+<td>Trunk-Based</td>
+<td>冲突少、合并快</td>
+</tr>
+</tbody>
+</table>
+<p><strong>记住</strong>：策略是给团队用的，不是给自己加戏的。先跑起来，再优化流程。</p>
+  </div>
+
+  <footer class="post-nav">
+    
+    <a class="post-nav-link" href="../posts/markdown-cheatsheet.html">
+      <span class="post-nav-dir">⟨ 上一篇</span>
+      <span class="post-nav-title">Markdown 写作速查：本站支持的语法</span>
+    </a>
+    
+    
+    <a class="post-nav-link right" href="../posts/python-virtualenv-guide.html">
+      <span class="post-nav-dir">下一篇 ⟩</span>
+      <span class="post-nav-title">Python 虚拟环境完全指南：从 venv 到 uv</span>
+    </a>
+    
+  </footer>
+</article>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-status"><i class="dot"></i> © 2026 YZH · YZH的Blog</span>
+    <span class="footer-links">
+      <a href="https://github.com/" rel="noopener" target="_blank">github</a>
+      
+    </span>
+  </div>
+</footer>
+</body>
+</html>

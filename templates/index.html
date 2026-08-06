@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site.title }} · {{ site.description }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="term-line"><span class="term-prompt">~ ❯</span> ls posts/</div>
+  <h1 class="page-title">{{ site.description }}</h1>
+  <p class="page-sub">共 {{ posts | length }} 篇文章 · 按时间倒序</p>
+</header>
+
+<section class="post-list">
+  {% for post in posts %}
+  <article class="post-item">
+    <div class="post-meta">
+      <time class="post-date" datetime="{{ post.date_str }}">{{ post.date_str }}</time>
+      {% if post.category %}
+      <span class="cat-badge">{{ post.category }}</span>
+      {% endif %}
+    </div>
+    <h2 class="post-title"><a href="{{ root }}/{{ post.url }}">{{ post.title }}</a></h2>
+    <p class="post-summary">{{ post.summary }}</p>
+    <div class="post-tags">
+      {% for tag in post.tags %}
+      <a class="tag-chip" href="{{ root }}/tags/{{ tag.url }}/">#{{ tag.name }}</a>
+      {% endfor %}
+    </div>
+  </article>
+  {% else %}
+  <p class="empty">还没有文章。把 .md 文件放进 content/posts/ 后运行 uv run build.py。</p>
+  {% endfor %}
+</section>
+
+{% if total_pages > 1 %}
+<nav class="pager">
+  {% if prev_no %}
+  <a class="pager-link" href="{{ root }}/{% if prev_no > 1 %}page/{{ prev_no }}/{% endif %}">⟨ 上一页</a>
+  {% else %}<span class="pager-link disabled">⟨ 上一页</span>{% endif %}
+
+  <span class="pager-pages">
+    {% for i in range(1, total_pages + 1) %}
+      {% if i == page_no %}
+      <span class="pager-page current">{{ i }}</span>
+      {% else %}
+      <a class="pager-page" href="{{ root }}/{% if i > 1 %}page/{{ i }}/{% endif %}">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+  </span>
+
+  {% if next_no %}
+  <a class="pager-link" href="{{ root }}/page/{{ next_no }}/">下一页 ⟩</a>
+  {% else %}<span class="pager-link disabled">下一页 ⟩</span>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markdown 写作速查：本站支持的语法 · YZH的Blog</title>
+<meta name="description" content="YZH 的技术博客：编程、开发经验与教程">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/highlight.css">
+</head>
+<body>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a class="logo" href="../">
+      <span class="logo-prompt">❯</span><span class="logo-name">YZH的Blog</span>
+    </a>
+    <div class="nav-links">
+      <a href="../">文章</a>
+      <a href="../archive/">归档</a>
+      <a href="../tags/">标签</a>
+      <a href="../search/">搜索</a>
+      
+      <a href="../about/">关于</a>
+      
+      <a href="../links/">友链</a>
+      
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+<article class="post">
+  <header class="post-head">
+    <div class="post-meta">
+      <time class="post-date" datetime="2026-05-30">2026-05-30</time>
+      <span class="cat-badge">教程</span>
+      
+      <a class="tag-chip" href="../tags/Markdown/">#Markdown</a>
+      
+      <a class="tag-chip" href="../tags/%E5%86%99%E4%BD%9C/">#写作</a>
+      
+    </div>
+    <h1 class="post-title">Markdown 写作速查：本站支持的语法</h1>
+    <div class="post-author">written by <span class="author-name">YZH</span></div>
+  </header>
+
+  <div class="post-body">
+    <p>写文章时经常要查语法，这里把本站支持的全部 Markdown 语法汇总成一张速查表，随时复制参考。</p>
+<h2>标题</h2>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">markdown</span></div><div class="highlight"><span class="gh"># 一级标题</span>
+<span class="gu">## 二级标题</span>
+<span class="gu">### 三级标题</span>
+</div></div>
+<h2>文字样式</h2>
+<p><strong>加粗</strong>、<em>斜体</em>、~~删除线~~、<code>行内代码</code>、<a href="https://example.com">链接</a>。</p>
+<h2>列表</h2>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">markdown</span></div><div class="highlight"><span class="k">-</span><span class="w"> </span>无序列表项
+<span class="k">-</span><span class="w"> </span>另一个列表项
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>嵌套项
+
+<span class="k">1.</span> 有序列表项
+<span class="k">2.</span> 按顺序排列
+</div></div>
+<h2>引用</h2>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">markdown</span></div><div class="highlight"><span class="k">&gt; </span><span class="ge">这是一段引用。</span>
+<span class="k">&gt; </span><span class="ge">支持多行。</span>
+</div></div>
+<blockquote>
+<p>这是一段引用。
+支持多行。</p>
+</blockquote>
+<h2>表格</h2>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">markdown</span></div><div class="highlight">| 语法 | 说明 |
+| --- | --- |
+| <span class="sb">`**粗**`</span> | 加粗 |
+| <span class="sb">`\`</span>code\`` | 行内代码 |
+</div></div>
+<table>
+<thead>
+<tr>
+<th>语法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>**粗**</code></td>
+<td>加粗</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td>行内代码</td>
+</tr>
+</tbody>
+</table>
+<h2>代码块</h2>
+<p>代码块用三个反引号包裹，可以指定语言获得语法高亮：</p>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">python</span></div><div class="highlight"><span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;终端风格代码块 + Pygments 高亮&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;你好，</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">！&quot;</span>
+</div></div>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">bash</span></div><div class="highlight"><span class="c1"># 终端命令</span>
+uv<span class="w"> </span>run<span class="w"> </span>build.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>serve.py
+</div></div>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">json</span></div><div class="highlight"><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;YZH的Blog&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;theme&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tokyo-night&quot;</span>
+<span class="p">}</span>
+</div></div>
+<p>不指定语言也可以，会按纯文本显示。</p>
+<h2>分隔线与转义</h2>
+<div class="codeblock"><div class="codeblock-bar"><span class="cb-dots"><i></i><i></i><i></i></span><span class="cb-lang">markdown</span></div><div class="highlight">---
+
+\# 反斜杠转义，可以输出字面量
+</div></div>
+<h2>小技巧</h2>
+<ul>
+<li>frontmatter 的 <code>summary</code> 会显示在文章列表，建议写一句话摘要</li>
+<li>不写 <code>summary</code> 时自动截取正文前 120 字</li>
+<li>标签用 <code>tags: [A, B]</code> 或 <code>tags: [A]</code> 都可以</li>
+<li>想存草稿，把 <code>draft: true</code> 写上，构建时会自动跳过</li>
+</ul>
+  </div>
+
+  <footer class="post-nav">
+    
+    <span class="post-nav-link empty"></span>
+    
+    
+    <a class="post-nav-link right" href="../posts/git-branch-strategy.html">
+      <span class="post-nav-dir">下一篇 ⟩</span>
+      <span class="post-nav-title">Git 分支策略：个人项目与团队协作的实践</span>
+    </a>
+    
+  </footer>
+</article>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-status"><i class="dot"></i> © 2026 YZH · YZH的Blog</span>
+    <span class="footer-links">
+      <a href="https://github.com/" rel="noopener" target="_blank">github</a>
+      
+    </span>
+  </div>
+</footer>
+</body>
+</html>
