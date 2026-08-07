@@ -27,13 +27,80 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from pygments import highlight as pyg_highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import TextLexer, get_lexer_by_name
+from pygments.style import Style
+from pygments.token import (Comment, Generic, Keyword, Name, Number, Operator,
+                            Punctuation, String, Token, Whitespace)
 from pygments.util import ClassNotFound
 
 ROOT = Path(__file__).resolve().parent
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 
-HIGHLIGHT_STYLE = "one-dark"   # 代码高亮主题（深色系，与站点风格一致）
+
+class TokyonightStyle(Style):
+    """代码高亮主题：token 颜色直接取自站点 Tokyo Night 色板，
+    与页面背景、强调色完全同源 —— 代码块不再与整体风格割裂。"""
+    background_color = "#16161e"
+
+    styles = {
+        Token:                "#c0caf5",   # 正文
+        Whitespace:           "#565f89",
+        Comment:              "#565f89",   # 注释：淡紫灰
+        Comment.Preproc:      "#89ddff",
+        Comment.Special:      "#565f89",
+        Keyword:              "#bb9af7",   # 关键字：紫
+        Keyword.Constant:     "#ff9e64",
+        Keyword.Declaration:  "#bb9af7",
+        Keyword.Namespace:    "#bb9af7",
+        Keyword.Pseudo:       "#bb9af7",
+        Keyword.Reserved:     "#bb9af7",
+        Keyword.Type:         "#ff9e64",   # 类型：橙
+        Name:                 "#c0caf5",
+        Name.Attribute:       "#7aa2f7",
+        Name.Builtin:         "#7dcfff",   # 内置函数：青
+        Name.Builtin.Pseudo:  "#7dcfff",
+        Name.Class:           "#7aa2f7",   # 类：蓝
+        Name.Constant:        "#ff9e64",
+        Name.Decorator:       "#ff9e64",
+        Name.Entity:          "#7dcfff",
+        Name.Exception:       "#f7768e",
+        Name.Function:        "#7aa2f7",   # 函数：蓝
+        Name.Label:           "#7aa2f7",
+        Name.Namespace:       "#7aa2f7",
+        Name.Other:           "#c0caf5",
+        Name.Tag:             "#f7768e",   # 标签：红
+        Name.Variable:        "#c0caf5",
+        String:               "#9ece6a",   # 字符串：绿
+        String.Affix:         "#9ece6a",
+        String.Char:          "#9ece6a",
+        String.Delimiter:     "#9ece6a",
+        String.Doc:           "#9ece6a",
+        String.Double:        "#9ece6a",
+        String.Escape:        "#ff9e64",
+        String.Heredoc:       "#9ece6a",
+        String.Interpol:      "#ff9e64",
+        String.Other:         "#9ece6a",
+        String.Regex:         "#9ece6a",
+        String.Single:        "#9ece6a",
+        String.Symbol:        "#9ece6a",
+        Number:               "#ff9e64",   # 数字：橙
+        Number.Bin:           "#ff9e64",
+        Number.Float:         "#ff9e64",
+        Number.Hex:           "#ff9e64",
+        Number.Integer:       "#ff9e64",
+        Number.Oct:           "#ff9e64",
+        Operator:             "#89ddff",   # 运算符：青白
+        Operator.Word:        "#bb9af7",
+        Punctuation:          "#89ddff",
+        Generic.Deleted:      "#f7768e",
+        Generic.Emph:         "#c0caf5 italic",
+        Generic.Error:        "#f7768e",
+        Generic.Heading:      "#7aa2f7 bold",
+        Generic.Inserted:     "#9ece6a",
+        Generic.Strong:       "#c0caf5 bold",
+        Generic.Subheading:   "#7aa2f7",
+        Generic.Traceback:    "#f7768e",
+    }
 
 
 def error(msg: str) -> None:
@@ -125,14 +192,9 @@ def transform_codeblocks(html_text: str) -> str:
         body = highlight_code(code, lang)
         bar = (
             '<div class="codeblock-bar">'
-            '<span class="cb-tab"><i class="cb-tab-dot"></i>'
-            f'<span class="cb-filename">{html_lib.escape(fname or label)}</span></span>'
+            '<span class="cb-dots"><i></i><i></i><i></i></span>'
+            f'<span class="cb-filename">{html_lib.escape(fname or label)}</span>'
             f'<span class="cb-lang">{html_lib.escape(label)}</span>'
-            '<span class="win-btns">'
-            '<span class="wb" aria-hidden="true">─</span>'
-            '<span class="wb" aria-hidden="true">□</span>'
-            '<span class="wb wb-close" aria-hidden="true">✕</span>'
-            "</span>"
             "</div>"
         )
         return f'<div class="codeblock">{bar}<div class="highlight">{body}</div></div>'
@@ -414,8 +476,8 @@ def copy_assets(site_dir: Path) -> None:
     if dst.exists():
         shutil.rmtree(dst)
     shutil.copytree(src, dst)
-    # 生成代码高亮 CSS（与站点风格匹配的深色主题）
-    css = HtmlFormatter(style=HIGHLIGHT_STYLE).get_style_defs(".highlight")
+    # 生成代码高亮 CSS（自定义 Tokyo Night 主题，与站点配色同源）
+    css = HtmlFormatter(style=TokyonightStyle).get_style_defs(".highlight")
     (dst / "highlight.css").write_text(css, encoding="utf-8")
 
 

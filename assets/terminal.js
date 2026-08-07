@@ -87,9 +87,8 @@
         fallbackCopy(text, ok);
       }
     });
-    // 插到窗口按钮之前，模拟真实终端标题栏布局
-    var winBtns = bar.querySelector(".win-btns");
-    if (winBtns) { bar.insertBefore(btn, winBtns); } else { bar.appendChild(btn); }
+    // 插到标题栏末尾（●●● 布局右侧）
+    bar.appendChild(btn);
   });
 
   function fallbackCopy(text, done) {
