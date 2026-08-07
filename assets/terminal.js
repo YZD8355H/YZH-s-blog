@@ -63,6 +63,23 @@
   /* ---------- 代码块复制按钮 ---------- */
   var copyLabel = "copy";
   var doneLabel = "✓ copied";
+  var failLabel = "✗ 失败";
+
+  function legacyCopy(text, ok, fail) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;width:2em;height:2em;opacity:0.01;";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var done = false;
+    try { done = document.execCommand("copy"); } catch (e) { done = false; }
+    document.body.removeChild(ta);
+    done ? ok() : fail();
+  }
+
   document.querySelectorAll(".codeblock-bar").forEach(function (bar) {
     var btn = document.createElement("button");
     btn.type = "button";
@@ -81,26 +98,23 @@
           btn.classList.remove("done");
         }, 1600);
       };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(ok, function () { fallbackCopy(text, ok); });
+      var fail = function () {
+        btn.textContent = failLabel;
+        btn.classList.add("failed");
+        setTimeout(function () {
+          btn.textContent = copyLabel;
+          btn.classList.remove("failed");
+        }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(ok, function () { legacyCopy(text, ok, fail); });
       } else {
-        fallbackCopy(text, ok);
+        legacyCopy(text, ok, fail);
       }
     });
     // 插到标题栏末尾（●●● 布局右侧）
     bar.appendChild(btn);
   });
-
-  function fallbackCopy(text, done) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); done(); } catch (e) { /* noop */ }
-    document.body.removeChild(ta);
-  }
 
   /* ---------- 点击反馈：终端代码行（❯ 随机命令打字机） ---------- */
   var CLICK_LINES = [

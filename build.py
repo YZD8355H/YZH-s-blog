@@ -190,6 +190,8 @@ def transform_codeblocks(html_text: str) -> str:
         fname = LANG_FILE_HINTS.get(label, "")
         code = html_lib.unescape(m.group("code"))
         body = highlight_code(code, lang)
+        # Pygments nowrap 模式不输出 <pre>（只有裸 span），必须手动包裹：
+        # 等宽字体/行高样式依赖 pre 元素，copy 按钮也从 pre 取文本
         bar = (
             '<div class="codeblock-bar">'
             '<span class="cb-dots"><i></i><i></i><i></i></span>'
@@ -197,7 +199,7 @@ def transform_codeblocks(html_text: str) -> str:
             f'<span class="cb-lang">{html_lib.escape(label)}</span>'
             "</div>"
         )
-        return f'<div class="codeblock">{bar}<div class="highlight">{body}</div></div>'
+        return f'<div class="codeblock">{bar}<div class="highlight"><pre>{body}</pre></div></div>'
 
     return CODEBLOCK_RE.sub(repl, html_text)
 
@@ -476,9 +478,24 @@ def copy_assets(site_dir: Path) -> None:
     if dst.exists():
         shutil.rmtree(dst)
     shutil.copytree(src, dst)
-    # 生成代码高亮 CSS（自定义 Tokyo Night 主题，与站点配色同源）
-    css = HtmlFormatter(style=TokyonightStyle).get_style_defs(".highlight")
-    (dst / "highlight.css").write_text(css, encoding="utf-8")
+    # 生成代码高亮 CSS：只保留 token 颜色规则，
+    # 过滤掉 Pygments 的全局 pre/linenos/背景规则 —— 字体、行高、背景完全由 style.css 控制，
+    # 避免 `pre { line-height: 125% }` 之类的干扰导致代码块与页面风格割裂。
+    (dst / "highlight.css").write_text(build_highlight_css(), encoding="utf-8")
+
+
+def build_highlight_css() -> str:
+    raw = HtmlFormatter(style=TokyonightStyle).get_style_defs(".highlight")
+    kept = []
+    for line in raw.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        selector = s.split("{", 1)[0].strip()
+        if selector in ("pre", ".highlight", ".highlight .hll") or selector.startswith(("td.", "span.")):
+            continue  # 丢弃干扰规则
+        kept.append(line)
+    return "\n".join(kept) + "\n"
 
 
 def copy_content_assets(content_dir: Path, site_dir: Path) -> None:
