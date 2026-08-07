@@ -106,7 +106,48 @@ cd /var/www/yzh-blog/src && git pull && uv run build.py
 
 > 更省事：本机构建后只上传产物 —— `scp -r site/ 用户名@IP:/var/www/yzh-blog/`（root 指向 /var/www/yzh-blog 即可）。
 
-## 方案三：Cloudflare Pages（国内访问最快的免费方案）
+## 方案三：Windows Server + IIS（Windows 服务器专用）
+
+> 适合 Windows Server 2022 等 Windows 服务器，全程图形界面操作，无需装任何第三方软件。
+
+**第 1 步 · RDP 远程桌面登录服务器**
+
+`mstsc` → 输入公网 IP（如 8.137.80.75）→ 管理员账号登录。
+
+**第 2 步 · 安装 IIS**
+
+服务器管理器 → 添加角色和功能 → 服务器角色 → 勾选 **Web 服务器 (IIS)** → 一路下一步安装（功能默认即可，含静态内容）。
+
+**第 3 步 · 上传站点**
+
+1. 本地运行 `uv run build.py`（如未构建）
+2. 在服务器创建目录 `C:\inetpub\yzh-blog`
+3. 把本地 `site/` 里的**所有文件**复制进去（RDP 远程桌面直接复制粘贴即可，约 200KB）
+
+**第 4 步 · IIS 指向站点**
+
+开始菜单打开 **IIS 管理器**（inetmgr）→ 左侧"默认网站" → 右侧"基本设置" → 物理路径改为 `C:\inetpub\yzh-blog` → 确定。
+
+**第 5 步 · 验证**
+
+浏览器访问 `http://8.137.80.75`（你的公网 IP）。
+
+**第 6 步（可选）· 终端风 404 页 + 压缩**
+
+- 404：IIS 管理器 → 默认网站 → 双击"错误页" → 双击 404 → 右侧"编辑功能设置" → 错误响应选"在此网站上执行 URL" → 填 `/404.html`
+- 压缩：默认网站 → 双击"压缩" → 勾选"启用静态内容压缩"
+
+**常见坑**
+
+| 问题 | 解决 |
+|---|---|
+| 外网打不开 | ① 阿里云控制台安全组放行 TCP 80（0.0.0.0/0）② Windows 防火墙放行 80（安装 IIS 时一般已自动添加，可在"防火墙高级设置"确认入站规则"World Wide Web Services"已启用） |
+| 403/404 | 确认物理路径正确、`index.html` 在目录根 |
+| 服务器重启后打不开 | IIS 是 Windows 服务，开机自启，无需干预 |
+
+**日常更新文章**：本地 `uv run build.py` → 把 `site/` 里更新过的文件重新复制到 `C:\inetpub\yzh-blog`（或整体覆盖）。
+
+## 方案四：Cloudflare Pages（国内访问最快的免费方案）
 
 1. 注册 Cloudflare → Workers & Pages → Create → 连接 GitHub 仓库
 2. Build command 填 `uv run build.py`，Output directory 填 `site`
