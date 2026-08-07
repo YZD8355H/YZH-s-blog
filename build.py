@@ -72,7 +72,7 @@ def load_config() -> dict:
 # ---------------------------------------------------------------- Markdown
 def make_markdown():
     return markdown.Markdown(
-        extensions=["fenced_code", "tables", "sane_lists"],
+        extensions=["fenced_code", "tables", "sane_lists", "toc"],
         output_format="html5",
     )
 
@@ -125,9 +125,14 @@ def transform_codeblocks(html_text: str) -> str:
         body = highlight_code(code, lang)
         bar = (
             '<div class="codeblock-bar">'
-            '<span class="cb-dots"><i></i><i></i><i></i></span>'
-            f'<span class="cb-filename">{html_lib.escape(fname or label)}</span>'
+            '<span class="cb-tab"><i class="cb-tab-dot"></i>'
+            f'<span class="cb-filename">{html_lib.escape(fname or label)}</span></span>'
             f'<span class="cb-lang">{html_lib.escape(label)}</span>'
+            '<span class="win-btns">'
+            '<span class="wb" aria-hidden="true">─</span>'
+            '<span class="wb" aria-hidden="true">□</span>'
+            '<span class="wb wb-close" aria-hidden="true">✕</span>'
+            "</span>"
             "</div>"
         )
         return f'<div class="codeblock">{bar}<div class="highlight">{body}</div></div>'
@@ -244,7 +249,9 @@ def load_posts(content_dir: Path, md) -> list[dict]:
             error(f"{path.name}: 标签含非法字符（标签会作为目录名）: {', '.join(bad_tags)}")
             tags = [t for t in tags if not (set(t["name"]) & INVALID_TAG_CHARS)]
 
-        html_body = md_to_html(md, body)
+        md.reset()
+        html_body = transform_codeblocks(md.convert(body))
+        toc = md.toc_tokens or []
         text = strip_html(html_body)
         summary = (fm.get("summary") or "").strip() or (text[:120] + ("…" if len(text) > 120 else ""))
 
@@ -260,6 +267,7 @@ def load_posts(content_dir: Path, md) -> list[dict]:
             "category": (fm.get("category") or "").strip(),
             "summary": summary,
             "html": html_body,
+            "toc": toc,
             "text": text,
             "url": f"posts/{quote(slug)}.html",
         })
@@ -309,6 +317,17 @@ def build_pages(posts, pages, config) -> list[dict]:
         "post_count": len(posts),
         "build_time": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
+
+    # 标签统计（首页标签墙 / 标签页共用）
+    tag_posts: dict[str, list[dict]] = {}
+    for p in posts:
+        for t in p["tags"]:
+            tag_posts.setdefault(t["name"], []).append(p)
+    tag_items = [
+        ({"name": name, "url": quote(name, safe="")}, ps)
+        for name, ps in tag_posts.items()
+    ]
+    tag_items.sort(key=lambda kv: kv[0]["name"])
     generated = []  # [(相对路径, 模板名)]
 
     def render_to(rel_path: Path, template: str, ctx: dict):
@@ -326,7 +345,7 @@ def build_pages(posts, pages, config) -> list[dict]:
         rel = Path("index.html") if page_no == 1 else Path(f"page/{page_no}/index.html")
         render_to(rel, "index.html", {
             **ctx_base, "root": "." if page_no == 1 else "../..",
-            "posts": chunk, "total_posts": n,
+            "posts": chunk, "total_posts": n, "tag_items": tag_items,
             "page_no": page_no, "total_pages": total_pages,
             "prev_no": prev_no, "next_no": next_no,
         })
@@ -350,11 +369,6 @@ def build_pages(posts, pages, config) -> list[dict]:
     })
 
     # ---- 标签云 + 每个标签的列表页
-    tag_items = [
-        ({"name": name, "url": quote(name, safe="")}, ps)
-        for name, ps in tag_posts.items()
-    ]
-    tag_items.sort(key=lambda kv: kv[0]["name"])
     render_to(Path("tags/index.html"), "tags.html", {
         **ctx_base, "root": "..", "tag_items": tag_items,
     })

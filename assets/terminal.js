@@ -87,7 +87,9 @@
         fallbackCopy(text, ok);
       }
     });
-    bar.appendChild(btn);
+    // 插到窗口按钮之前，模拟真实终端标题栏布局
+    var winBtns = bar.querySelector(".win-btns");
+    if (winBtns) { bar.insertBefore(btn, winBtns); } else { bar.appendChild(btn); }
   });
 
   function fallbackCopy(text, done) {
@@ -101,37 +103,48 @@
     document.body.removeChild(ta);
   }
 
-  /* ---------- 点击反馈：码字粒子爆散 + 涟漪环 ---------- */
-  var PARTICLE_CHARS = ["$", "#", "&", "<", ">", "{", "}", "/", "\\", "(", ")", "_", "+", "=", "*", "~", "|"];
-  var PARTICLE_COLORS = ["#7dcfff", "#9ece6a", "#bb9af7", "#e0af68", "#7aa2f7", "#eaf6ff"];
+  /* ---------- 点击反馈：终端代码行（❯ 随机命令打字机） ---------- */
+  var CLICK_LINES = [
+    "git push origin main", "uv sync && uv run build.py", "ls -la", "npm run dev",
+    "python main.py", "curl -s https://api.github.com", "docker compose up -d",
+    "ping 127.0.0.1 -t", "cat config.yaml", "vim ~/.bashrc", "sudo apt update",
+    "grep -r TODO ./src", "kubectl get pods", "ssh yzh@server", ">_",
+    "SyntaxError: unexpected EOF", "404: command not found",
+    "segmentation fault (core dumped)", "make && make install",
+    "tail -f /var/log/blog.log", "echo 'hello, world!'", "rm -rf /tmp/thoughts",
+  ];
+  var activeLines = [];
 
-  function spawnClickFx(x, y) {
-    // 涟漪环
-    var ring = document.createElement("span");
-    ring.className = "click-ring";
-    ring.style.left = x + "px";
-    ring.style.top = y + "px";
-    document.body.appendChild(ring);
-    (function (el) { setTimeout(function () { el.remove(); }, 520); })(ring);
-
-    // 码字粒子
-    var n = 14;
-    for (var i = 0; i < n; i++) {
-      var s = document.createElement("span");
-      s.className = "click-particle";
-      s.textContent = PARTICLE_CHARS[Math.floor(Math.random() * PARTICLE_CHARS.length)];
-      s.style.color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
-      s.style.fontSize = (13 + Math.random() * 6).toFixed(1) + "px";   // 13~19px，大小随机更有层次
-      s.style.left = x + "px";
-      s.style.top = y + "px";
-      var angle = Math.random() * Math.PI * 2;
-      var dist = 34 + Math.random() * 56;                              // 飞散更远
-      s.style.setProperty("--dx", (Math.cos(angle) * dist).toFixed(1) + "px");
-      s.style.setProperty("--dy", (Math.sin(angle) * dist - 22).toFixed(1) + "px");
-      s.style.setProperty("--rot", (Math.random() * 260 - 130).toFixed(0) + "deg");
-      document.body.appendChild(s);
-      (function (el) { setTimeout(function () { el.remove(); }, 780); })(s);
+  function spawnClickLine(x, y) {
+    // 最多同时显示 3 条，超出移除最旧的
+    while (activeLines.length >= 3) {
+      var old = activeLines.shift();
+      if (old.parentNode) old.remove();
     }
+    var line = document.createElement("span");
+    line.className = "click-line";
+    var prompt = document.createElement("span");
+    prompt.className = "cl-prompt";
+    prompt.textContent = "❯";
+    var code = document.createElement("span");
+    code.className = "cl-code";
+    line.appendChild(prompt);
+    line.appendChild(code);
+    line.style.left = x + "px";
+    line.style.top = (y + 12) + "px";
+    document.body.appendChild(line);
+    activeLines.push(line);
+
+    var text = CLICK_LINES[Math.floor(Math.random() * CLICK_LINES.length)];
+    var i = 0;
+    var timer = setInterval(function () {
+      i += 1;
+      code.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        clearInterval(timer);
+        setTimeout(function () { if (line.parentNode) line.remove(); }, 950);
+      }
+    }, 22);
   }
 
   document.addEventListener("pointerdown", function (e) {
@@ -140,6 +153,25 @@
     // 文本选择时不出特效，避免干扰
     var sel = window.getSelection();
     if (sel && sel.toString()) return;
-    spawnClickFx(e.clientX, e.clientY);
+    spawnClickLine(e.clientX, e.clientY);
   });
+
+  /* ---------- 文章目录（TOC）滚动高亮 ---------- */
+  var tocLinks = document.querySelectorAll(".toc a");
+  if (tocLinks.length) {
+    var headings = Array.prototype.map.call(tocLinks, function (a) {
+      return document.getElementById(a.getAttribute("href").slice(1));
+    }).filter(Boolean);
+    var updateToc = function () {
+      var pos = (window.scrollY || document.documentElement.scrollTop) + 96;
+      var current = null;
+      headings.forEach(function (h) { if (h.offsetTop <= pos) current = h; });
+      tocLinks.forEach(function (a) {
+        a.classList.toggle("active", current !== null && a.getAttribute("href") === "#" + current.id);
+      });
+    };
+    window.addEventListener("scroll", updateToc, { passive: true });
+    window.addEventListener("resize", updateToc);
+    updateToc();
+  }
 })();

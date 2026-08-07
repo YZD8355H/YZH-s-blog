@@ -2,6 +2,16 @@
 
 {% block title %}{{ post.title }} · {{ site.title }}{% endblock %}
 {% block meta_desc %}{{ post.summary }}{% endblock %}
+{% block main_class %}container container-wide{% endblock %}
+
+{% macro render_toc(items) %}
+  {% for item in items %}
+  <li>
+    <a href="#{{ item.id }}">{{ item.name }}</a>
+    {% if item.children %}<ul class="toc-sub">{{ render_toc(item.children) }}</ul>{% endif %}
+  </li>
+  {% endfor %}
+{% endmacro %}
 
 {% block content %}
 <div class="back-link"><a href="{{ root }}/">⟨ 返回文章列表</a></div>
@@ -18,8 +28,17 @@
     <div class="post-author">written by <span class="author-name">{{ site.author }}</span></div>
   </header>
 
-  <div class="post-body">
-    {{ post.html | safe }}
+  <div class="post-layout">
+    <div class="post-body">
+      {{ post.html | safe }}
+    </div>
+
+    {% if post.toc %}
+    <aside class="toc" aria-label="文章目录">
+      <div class="toc-title">目录</div>
+      <ul class="toc-list">{{ render_toc(post.toc) }}</ul>
+    </aside>
+    {% endif %}
   </div>
 
   <footer class="post-nav">
