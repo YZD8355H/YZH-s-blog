@@ -212,6 +212,10 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
   box-shadow: 0 0 8px rgba(158, 206, 106, 0.8);
   animation: pulse 2.4s ease-in-out infinite;
 }
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(158, 206, 106, 0.55); }
+  50% { opacity: 0.65; box-shadow: 0 0 0 5px rgba(158, 206, 106, 0); }
+}
 .hero-title {
   margin: 0 0 10px;
   font-family: var(--font-mono);
@@ -974,7 +978,7 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
   border-top: 1px solid var(--border);
 }
 
-/* -------------------------------------------------- 页脚（终端状态栏） */
+/* -------------------------------------------------- 页脚（极简：版权 + 链接） */
 .site-footer {
   border-top: 1px solid var(--border);
   background: rgba(11, 13, 19, 0.85);
@@ -982,34 +986,18 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
 .footer-inner {
   max-width: 940px;
   margin: 0 auto;
-  padding: 16px 22px;
+  padding: 18px 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--fg-faint);
   flex-wrap: wrap;
 }
-.footer-status { display: inline-flex; align-items: center; gap: 8px; }
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  display: inline-block;
-  animation: pulse 2.4s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(158, 206, 106, 0.7);
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(158, 206, 106, 0.55); }
-  50% { opacity: 0.65; box-shadow: 0 0 0 5px rgba(158, 206, 106, 0); }
-}
-.footer-meta { display: inline-flex; gap: 16px; flex-wrap: wrap; }
-.footer-meta b { color: var(--fg-dim); font-weight: 400; }
-.footer-meta .m-green { color: var(--green); }
-.footer-links a { color: var(--fg-faint); margin-left: 14px; }
+.footer-copy { color: var(--fg-dim); }
+.footer-links a { color: var(--fg-faint); margin-left: 16px; }
 .footer-links a:hover { color: var(--green); }
 
 /* -------------------------------------------------- 回到顶部 */

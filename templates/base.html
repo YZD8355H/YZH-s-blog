@@ -35,13 +35,7 @@
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <span class="footer-status"><i class="dot"></i> [ok] 状态在线</span>
-    <span class="footer-meta">
-      <span>主题: <b class="m-green">tokyo-night</b></span>
-      <span>文章: <b>{{ post_count }}</b></span>
-      <span>构建: <b>{{ build_time }}</b></span>
-      <span>© {{ site.since }} {{ site.author }}</span>
-    </span>
+    <span class="footer-copy">© {{ site.since }} {{ site.author }}</span>
     <span class="footer-links">
       {% if social.github %}<a href="{{ social.github }}" rel="noopener" target="_blank">github</a>{% endif %}
       {% if social.email %}<a href="mailto:{{ social.email }}">email</a>{% endif %}

@@ -16,110 +16,95 @@
 
 ## 方案二：自建服务器 + Nginx（你要的）
 
-### 1. 准备
+### 阿里云 ECS（成都节点）专属步骤
 
-- 一台服务器（Ubuntu/Debian 示例），已有 Nginx：
-  ```bash
-  sudo apt update && sudo apt install -y nginx
-  ```
+> 阿里云与普通 VPS 的差别只有两处：**安全组**（云控制台放行端口）和**备案**（国内节点域名必须 ICP 备案）。系统通常是 Alibaba Cloud Linux / CentOS，命令用 `dnf`（旧版用 `yum`）。
 
-### 2. 上传站点文件（二选一）
+**第 0 步 · 安全组放行端口（必做，否则外网访问不通）**
 
-**方式 A：本地构建，直接上传**（最简单）
+阿里云控制台 → ECS 实例 → 安全组 → 配置规则 → 添加入方向规则：
+
+| 协议 | 端口 | 授权对象 |
+|---|---|---|
+| TCP | 80 | 0.0.0.0/0 |
+| TCP | 443 | 0.0.0.0/0 |
+| TCP | 22 | 你的 IP（安全起见不要全放行） |
+
+**第 0.5 步 · 备案确认**
+
+- 有域名且要绑定域名 → 必须先 ICP 备案（阿里云控制台 → 备案系统，约 1-2 周），未备案域名访问会被拦截
+- 没有域名 / 备案中 → **用服务器 IP 直接访问**（http://IP），无需备案
+- 备案通过后域名才能解析并访问
+
+**第 1 步 · 装环境**（SSH 登录后执行）：
 
 ```bash
-# 本地
-uv run build.py
-scp -r site/ 用户名@服务器IP:/var/www/yzh-blog/
+sudo dnf install -y nginx git curl    # 老系统用 yum
+curl -LsSf https://astral.sh/uv/install.sh | sh && source ~/.bashrc
 ```
 
-**方式 B：服务器上自动构建**（推荐，以后更新只跑一条命令）
+**第 2 步 · 拉取代码并构建**：
 
 ```bash
-# 服务器上
-sudo apt install -y git python3-pip
-curl -LsSf https://astral.sh/uv/install.sh | sh   # 安装 uv
-source ~/.bashrc
-
 sudo mkdir -p /var/www/yzh-blog
 sudo chown -R $USER /var/www/yzh-blog
-git clone https://github.com/YZD8355H/YZH-s-blog.git /var/www/yzh-blog/src
-cd /var/www/yzh-blog/src && uv sync
+
+# 国内服务器 clone GitHub 慢/失败时，用 ghproxy 镜像：
+git clone https://ghproxy.com/https://github.com/YZD8355H/YZH-s-blog.git /var/www/yzh-blog/src
+# 能直连就正常 clone 即可
+
+cd /var/www/yzh-blog/src
+uv sync && uv run build.py
+ls site/          # 确认生成了 index.html
 ```
 
-> 国内服务器 clone GitHub 慢时用镜像：
-> ```bash
-> git clone https://ghproxy.com/https://github.com/YZD8355H/YZH-s-blog.git src
-> ```
-
-### 3. 配置 Nginx
+**第 3 步 · 配 Nginx**：
 
 ```bash
-sudo nano /etc/nginx/sites-available/yzh-blog
+sudo vim /etc/nginx/conf.d/yzh-blog.conf    # CentOS/Alibaba Cloud Linux 用 conf.d
 ```
 
 ```nginx
 server {
     listen 80;
-    server_name 你的域名或服务器IP;
+    server_name 你的域名或服务器IP;   # 没域名就填 IP
 
-    root /var/www/yzh-blog/src/site;   # 方式A 则改为 /var/www/yzh-blog;
+    root /var/www/yzh-blog/src/site;
     index index.html;
 
     location / {
         try_files $uri $uri/ =404;
     }
-
-    # 静态资源缓存
     location ~* \.(css|js|svg|png|jpg|webp)$ {
         expires 7d;
         add_header Cache-Control "public";
     }
-
+    error_page 404 /404.html;
     gzip on;
     gzip_types text/css application/javascript application/json image/svg+xml;
 }
 ```
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/yzh-blog /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-打开 `http://服务器IP` 即可访问。
+浏览器打开 `http://服务器IP` 即可访问。
 
-### 4. HTTPS（证书，强烈建议）
+**第 4 步 · HTTPS（有备案域名时）**
 
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
+sudo dnf install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d 你的域名
 ```
 
-certbot 自动配置证书和跳转，每 90 天自动续期。
-
-### 5. 日常更新文章
+**日常更新文章**：
 
 ```bash
-# 服务器上
-cd /var/www/yzh-blog/src
-git pull
-uv run build.py
+cd /var/www/yzh-blog/src && git pull && uv run build.py
 ```
 
-或保存为更新脚本 `update.sh`：
-
-```bash
-#!/bin/bash
-cd /var/www/yzh-blog/src
-git pull && uv run build.py
-```
-
-### 6. 防火墙
-
-```bash
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-```
+> 更省事：本机构建后只上传产物 —— `scp -r site/ 用户名@IP:/var/www/yzh-blog/`（root 指向 /var/www/yzh-blog 即可）。
 
 ## 方案三：Cloudflare Pages（国内访问最快的免费方案）
 

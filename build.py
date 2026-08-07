@@ -383,10 +383,8 @@ def build_pages(posts, pages, config) -> list[dict]:
         "social": social,
         "nav_pages": pages,
         "nav_current": "",
-        "post_count": len(posts),
         "tag_count": len(tag_items),
         "total_words": sum(len(p["text"]) for p in posts),
-        "build_time": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
     generated = []  # [(相对路径, 模板名)]
 
