@@ -224,6 +224,18 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), var(--glow-cyan);
+  position: relative;
+}
+/* 窗口顶部玻璃高光（真实终端的光泽感） */
+.hero-terminal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  z-index: 1;
 }
 .terminal-bar {
   display: flex;
@@ -244,15 +256,32 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
 .terminal-title { letter-spacing: 0.5px; }
 .terminal-title .t-green { color: var(--green); }
 .terminal-body {
-  padding: 18px 20px 20px;
+  position: relative;
+  padding: 16px 20px 18px;
   font-family: var(--font-mono);
   font-size: 13.5px;
-  line-height: 1.9;
+  line-height: 1.85;
 }
-.t-line { margin: 0 0 6px; white-space: pre-wrap; word-break: break-word; }
-.t-line .t-prompt { color: var(--green); }
-.t-line .t-cmd { color: var(--fg); }
-.t-out { color: var(--fg-dim); margin-bottom: 10px; }
+/* 微妙的 CRT 扫描线纹理（纯装饰） */
+.terminal-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(255, 255, 255, 0.014) 2px,
+    rgba(255, 255, 255, 0.014) 3px
+  );
+}
+.t-line { margin: 0 0 5px; white-space: pre-wrap; word-break: break-word; position: relative; }
+.t-line .t-prompt { color: var(--fg-faint); }
+.tp-user { color: var(--green); }
+.tp-path { color: var(--cyan); }
+.t-line .t-cmd { color: #e8f0ff; }
+.t-out { color: var(--fg-dim); margin-bottom: 9px; }
 .t-out .t-key { color: var(--cyan); }
 .t-out .t-num { color: var(--orange); }
 /* 终端光标：方块光标（全站唯一闪烁元素） */
@@ -591,15 +620,44 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
 .codeblock-bar {
   display: flex;
   align-items: center;
-  padding: 9px 14px;
-  background: rgba(255, 255, 255, 0.03);
+  gap: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
   border-bottom: 1px solid var(--border);
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--fg-faint);
+  position: relative;
 }
-.cb-dots { margin-right: 10px; }
-.cb-lang { letter-spacing: 0.5px; }
+.codeblock-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+.cb-dots { margin-right: 2px; }
+.cb-filename {
+  flex: 1;
+  text-align: center;
+  color: var(--fg-dim);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cb-lang {
+  letter-spacing: 0.5px;
+  font-size: 11px;
+  color: var(--fg-faint);
+  border: 1px solid var(--border);
+  padding: 1px 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.cb-lang:empty { display: none; }
 
 .copy-btn {
   margin-left: auto;
@@ -876,21 +934,39 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
   box-shadow: 0 0 14px rgba(158, 206, 106, 0.2);
 }
 
-/* -------------------------------------------------- 点击粒子特效 */
+/* -------------------------------------------------- 点击粒子特效（码字爆散 + 涟漪环） */
 .click-particle {
   position: fixed;
   z-index: 999;
   pointer-events: none;
   font-family: var(--font-mono);
-  font-size: 13px;
   font-weight: 700;
   will-change: transform, opacity;
-  animation: particle-burst 0.62s cubic-bezier(0.16, 0.8, 0.4, 1) forwards;
+  animation: particle-burst 0.75s cubic-bezier(0.16, 0.8, 0.4, 1) forwards;
   user-select: none;
+  text-shadow: 0 0 10px currentColor;
 }
 @keyframes particle-burst {
   0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--rot, 60deg)); opacity: 0; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.25) rotate(var(--rot, 60deg)); opacity: 0; }
+}
+.click-ring {
+  position: fixed;
+  z-index: 998;
+  pointer-events: none;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  margin-top: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 14px rgba(125, 207, 255, 0.7), inset 0 0 8px rgba(125, 207, 255, 0.35);
+  animation: ring-expand 0.5s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+  will-change: transform, opacity;
+}
+@keyframes ring-expand {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(5.5); opacity: 0; }
 }
 
 /* -------------------------------------------------- 响应式 */
@@ -912,4 +988,15 @@ a:hover { color: var(--cyan); text-decoration: underline; text-underline-offset:
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* -------------------------------------------------- 打印 */
+@media print {
+  body { background: #fff !important; color: #111; }
+  .site-nav, .site-footer, #back-top, .click-particle, .click-ring,
+  #scroll-progress, .copy-btn, .post-nav, .back-link { display: none !important; }
+  .hero-terminal, .codeblock { border-color: #bbb; box-shadow: none; }
+  .hero-title, .hero-accent { color: #111; -webkit-text-fill-color: #111; }
+  .post-head .post-title { color: #111; -webkit-text-fill-color: #111; background: none; }
+  a { color: #0645ad; }
 }

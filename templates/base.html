@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ site.title }}{% endblock %}</title>
-<meta name="description" content="{{ site.description }}">
+<meta name="description" content="{% block meta_desc %}{{ site.description }}{% endblock %}">
 <meta name="theme-color" content="#0f1117">
 <link rel="icon" href="{{ root }}/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{{ root }}/assets/style.css">

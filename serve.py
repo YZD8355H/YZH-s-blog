@@ -24,7 +24,24 @@ def make_handler(directory: Path):
             super().__init__(*args, directory=str(directory), **kwargs)
 
         def log_message(self, fmt, *args):
-            print(f"  [{self.log_date_time_string()}] {fmt % args}")
+            # 安静模式：只记录异常请求（4xx/5xx），正常访问不刷屏
+            first = str(args[0]) if args else ""
+            if first.isdigit() and int(first) >= 400:
+                print(f"  [{self.log_date_time_string()}] {self.requestline} → {first}")
+
+        def send_error(self, code, message=None, explain=None):
+            # 404 时返回站点的终端风 404 页
+            if code == 404:
+                p404 = Path(self.directory) / "404.html"
+                if p404.exists():
+                    body = p404.read_bytes()
+                    self.send_response(404)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+            super().send_error(code, message, explain)
 
     return Handler
 

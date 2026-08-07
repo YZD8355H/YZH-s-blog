@@ -101,36 +101,45 @@
     document.body.removeChild(ta);
   }
 
-  /* ---------- 点击粒子特效（码字爆散） ---------- */
-  var PARTICLE_CHARS = ["$", "#", "&", "<", ">", "{", "}", "/", "\\", "(", ")", "_", "+", "=", "*", "~"];
-  var PARTICLE_COLORS = ["#7dcfff", "#9ece6a", "#bb9af7", "#e0af68", "#7aa2f7"];
+  /* ---------- 点击反馈：码字粒子爆散 + 涟漪环 ---------- */
+  var PARTICLE_CHARS = ["$", "#", "&", "<", ">", "{", "}", "/", "\\", "(", ")", "_", "+", "=", "*", "~", "|"];
+  var PARTICLE_COLORS = ["#7dcfff", "#9ece6a", "#bb9af7", "#e0af68", "#7aa2f7", "#eaf6ff"];
 
-  function spawnParticles(x, y) {
-    var n = 10;
+  function spawnClickFx(x, y) {
+    // 涟漪环
+    var ring = document.createElement("span");
+    ring.className = "click-ring";
+    ring.style.left = x + "px";
+    ring.style.top = y + "px";
+    document.body.appendChild(ring);
+    (function (el) { setTimeout(function () { el.remove(); }, 520); })(ring);
+
+    // 码字粒子
+    var n = 14;
     for (var i = 0; i < n; i++) {
       var s = document.createElement("span");
       s.className = "click-particle";
       s.textContent = PARTICLE_CHARS[Math.floor(Math.random() * PARTICLE_CHARS.length)];
       s.style.color = PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)];
+      s.style.fontSize = (13 + Math.random() * 6).toFixed(1) + "px";   // 13~19px，大小随机更有层次
       s.style.left = x + "px";
       s.style.top = y + "px";
       var angle = Math.random() * Math.PI * 2;
-      var dist = 28 + Math.random() * 44;
+      var dist = 34 + Math.random() * 56;                              // 飞散更远
       s.style.setProperty("--dx", (Math.cos(angle) * dist).toFixed(1) + "px");
-      s.style.setProperty("--dy", (Math.sin(angle) * dist - 18).toFixed(1) + "px");
-      s.style.setProperty("--rot", (Math.random() * 200 - 100).toFixed(0) + "deg");
-      s.style.textShadow = "0 0 8px " + s.style.color;
+      s.style.setProperty("--dy", (Math.sin(angle) * dist - 22).toFixed(1) + "px");
+      s.style.setProperty("--rot", (Math.random() * 260 - 130).toFixed(0) + "deg");
       document.body.appendChild(s);
-      (function (el) { setTimeout(function () { el.remove(); }, 650); })(s);
+      (function (el) { setTimeout(function () { el.remove(); }, 780); })(s);
     }
   }
 
   document.addEventListener("pointerdown", function (e) {
     if (reduceMotion) return;
     if (e.button !== 0 && e.pointerType !== "touch") return;
-    // 文本选择时不出粒子，避免干扰
+    // 文本选择时不出特效，避免干扰
     var sel = window.getSelection();
     if (sel && sel.toString()) return;
-    spawnParticles(e.clientX, e.clientY);
+    spawnClickFx(e.clientX, e.clientY);
   });
 })();

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}404 · {{ site.title }}{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="term-line"><span class="term-prompt">~ ❯</span> cat /404</div>
+  <h1 class="page-title">404: command not found</h1>
+  <p class="page-sub">你访问的页面不存在，或已被移动。</p>
+</header>
+
+<div class="empty">
+  <p>zsh: no such file or directory: <span class="code">/404</span></p>
+  <p><a href="{{ root }}/">⟨ 返回首页</a></p>
+</div>
+{% endblock %}

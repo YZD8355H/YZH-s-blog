@@ -51,7 +51,7 @@
       return (
         '<div class="search-result">' +
         '<h3 class="search-result-title"><a href="' + p.url + '">' + highlight(p.title, qs) + "</a></h3>" +
-        '<div class="search-result-meta">' + escapeHtml(meta) + "</div>" +
+        '<div class="search-result-meta">' + highlight(meta, qs) + "</div>" +
         '<p class="search-result-summary">' + highlight(p.summary, qs) + "</p>" +
         "</div>"
       );

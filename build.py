@@ -83,6 +83,24 @@ CODEBLOCK_RE = re.compile(
 )
 LANG_RE = re.compile(r'class="language-([\w#.+-]+)"')
 
+# 代码块标题栏的"文件名"提示（模拟真实终端/编辑器打开的文件）
+LANG_FILE_HINTS = {
+    "python": "script.py", "py": "script.py",
+    "bash": "script.sh", "sh": "script.sh", "shell": "script.sh", "console": "terminal",
+    "yaml": "config.yaml", "yml": "config.yml",
+    "json": "config.json", "javascript": "app.js", "js": "app.js",
+    "typescript": "app.ts", "ts": "app.ts", "jsx": "App.jsx", "tsx": "App.tsx",
+    "html": "index.html", "css": "style.css", "scss": "style.scss",
+    "sql": "query.sql", "java": "Main.java", "c": "main.c", "cpp": "main.cpp",
+    "csharp": "Program.cs", "go": "main.go", "rust": "main.rs", "ruby": "main.rb",
+    "php": "index.php", "markdown": "README.md", "md": "README.md",
+    "docker": "Dockerfile", "dockerfile": "Dockerfile", "nginx": "nginx.conf",
+    "git": ".gitconfig", "diff": "changes.diff", "xml": "config.xml",
+    "toml": "pyproject.toml", "ini": "config.ini", "text": "notes.txt",
+    "makefile": "Makefile", "cmake": "CMakeLists.txt", "powershell": "setup.ps1",
+    "kotlin": "Main.kt", "swift": "main.swift", "lua": "main.lua", "perl": "script.pl",
+}
+
 
 def highlight_code(code: str, lang: str | None) -> str:
     if lang:
@@ -102,11 +120,13 @@ def transform_codeblocks(html_text: str) -> str:
         lm = LANG_RE.search(m.group("code_attrs"))
         lang = lm.group(1) if lm else None
         label = lang or "text"
+        fname = LANG_FILE_HINTS.get(label, "")
         code = html_lib.unescape(m.group("code"))
         body = highlight_code(code, lang)
         bar = (
             '<div class="codeblock-bar">'
             '<span class="cb-dots"><i></i><i></i><i></i></span>'
+            f'<span class="cb-filename">{html_lib.escape(fname or label)}</span>'
             f'<span class="cb-lang">{html_lib.escape(label)}</span>'
             "</div>"
         )
@@ -366,6 +386,11 @@ def build_pages(posts, pages, config) -> list[dict]:
             "link_items": config["links"],
         })
 
+    # ---- 404 页（终端风：command not found）
+    render_to(Path("404.html"), "404.html", {
+        **ctx_base, "root": ".",
+    })
+
     return generated
 
 
@@ -378,6 +403,22 @@ def copy_assets(site_dir: Path) -> None:
     # 生成代码高亮 CSS（与站点风格匹配的深色主题）
     css = HtmlFormatter(style=HIGHLIGHT_STYLE).get_style_defs(".highlight")
     (dst / "highlight.css").write_text(css, encoding="utf-8")
+
+
+def copy_content_assets(content_dir: Path, site_dir: Path) -> None:
+    """复制文章引用的本地资源：
+    content/images/  → site/images/     （文章里写 ../images/xxx.png）
+    content/posts/ 下的子目录 → site/posts/ 对应位置（文章里写 images/xxx.png）"""
+    src = content_dir / "images"
+    if src.exists():
+        shutil.copytree(src, site_dir / "images", dirs_exist_ok=True)
+        print(f"  复制内容图片: content/images/ → images/")
+    posts_src = content_dir / "posts"
+    if posts_src.exists():
+        for item in sorted(posts_src.iterdir()):
+            if item.is_dir() and not item.name.startswith("."):
+                shutil.copytree(item, site_dir / "posts" / item.name, dirs_exist_ok=True)
+                print(f"  复制文章附件: posts/{item.name}/ → posts/{item.name}/")
 
 
 def check_links(site_dir: Path) -> None:
@@ -424,6 +465,7 @@ def main() -> int:
 
     generated = build_pages(posts, pages, config)
     copy_assets(site_dir)
+    copy_content_assets(ROOT / "content", site_dir)
     print(f"  生成 {len(generated)} 个页面，文章 {len(posts)} 篇，标签 {len({t['name'] for p in posts for t in p['tags']})} 个")
     check_links(site_dir)
 
