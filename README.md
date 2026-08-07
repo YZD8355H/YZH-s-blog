@@ -78,13 +78,13 @@ draft: true   # 可选：true 时跳过构建（草稿）
 
 ## 站点配置
 
-`config.yaml`：博客名、署名、社交链接（页脚）、友链（友链页自动渲染卡片）。
+`config.yaml`：博客名、署名、社交链接（页脚）、构建参数。
 
 ## 目录结构
 
 ```
 content/posts/    文章（Markdown，丢进来即发布）
-content/pages/    独立页面（about、links）
+content/pages/    独立页面（about 等）
 templates/        Jinja2 模板
 assets/           深色主题 CSS / 交互 JS / 图标
 site/             构建产物（整个文件夹可直接部署到任意静态托管）

@@ -8,7 +8,6 @@ YZH的Blog 本地预览服务器
     uv run serve.py --no-open       # 不自动打开浏览器
 """
 import argparse
-import functools
 import threading
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer

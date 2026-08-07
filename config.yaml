@@ -13,15 +13,6 @@ social:
   github: "https://github.com/YZD8355H/YZH-s-blog"
   email: ""
 
-# 友链（友链页显示，name + url + desc）
-links:
-  - name: "示例友链A"
-    url: "https://example.com"
-    desc: "占位说明，在 config.yaml 里修改"
-  - name: "示例友链B"
-    url: "https://example.org"
-    desc: "占位说明，在 config.yaml 里修改"
-
 # 构建参数
 build:
   posts_per_page: 8           # 首页每页文章数

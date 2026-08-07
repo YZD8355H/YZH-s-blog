@@ -10,17 +10,6 @@
   </header>
   <div class="page-body">
     {{ page.html | safe }}
-    {% if page.slug == 'links' and link_items %}
-    <div class="link-list">
-      {% for l in link_items %}
-      <a class="link-card" href="{{ l.url }}" rel="noopener" target="_blank">
-        <span class="link-card-name">{{ l.name }}</span>
-        <span class="link-card-desc">{{ l.desc }}</span>
-        <span class="link-card-url">{{ l.url }}</span>
-      </a>
-      {% endfor %}
-    </div>
-    {% endif %}
   </div>
 </article>
 {% endblock %}

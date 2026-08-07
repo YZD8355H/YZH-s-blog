@@ -3,10 +3,22 @@
 {% block title %}{{ site.title }} · {{ site.description }}{% endblock %}
 
 {% block content %}
+<div class="home-search">
+  <form class="search-box" action="{{ root }}/search/" method="get">
+    <span class="search-prompt">❯</span>
+    <input type="search" name="q" aria-label="搜索文章" placeholder="搜索文章… 输入关键词回车" autocomplete="off">
+  </form>
+</div>
+
 <header class="hero">
   <div class="hero-badge"><span class="badge-dot"></span> yzh@blog:~$ whoami → {{ site.author }}</div>
   <h1 class="hero-title">Hi, I'm <span class="hero-accent">YZH</span></h1>
   <p class="hero-sub">{{ site.description }}</p>
+  <div class="hero-stats">
+    <span><b>{{ total_posts }}</b> 篇文章</span>
+    <span><b>{{ tag_count }}</b> 个标签</span>
+    <span><b>{{ total_words }}</b> 字</span>
+  </div>
 
   <div class="hero-terminal">
     <div class="terminal-bar">

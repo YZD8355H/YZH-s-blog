@@ -18,12 +18,12 @@
       <span class="logo-prompt">❯</span><span class="logo-name">{{ site.title }}</span>
     </a>
     <div class="nav-links">
-      <a href="{{ root }}/">文章</a>
-      <a href="{{ root }}/archive/">归档</a>
-      <a href="{{ root }}/tags/">标签</a>
-      <a href="{{ root }}/search/">搜索</a>
+      <a href="{{ root }}/" {% if nav_current == 'index' %}class="active"{% endif %}>文章</a>
+      <a href="{{ root }}/archive/" {% if nav_current == 'archive' %}class="active"{% endif %}>归档</a>
+      <a href="{{ root }}/tags/" {% if nav_current == 'tags' %}class="active"{% endif %}>标签</a>
+      <a href="{{ root }}/search/" {% if nav_current == 'search' %}class="active"{% endif %}>搜索</a>
       {% for page in nav_pages %}
-      <a href="{{ root }}/{{ page.url }}">{{ page.title }}</a>
+      <a href="{{ root }}/{{ page.url }}" {% if nav_current == page.slug %}class="active"{% endif %}>{{ page.title }}</a>
       {% endfor %}
     </div>
   </div>

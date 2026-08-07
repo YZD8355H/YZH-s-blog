@@ -7,12 +7,29 @@
   if (!input || !results || typeof INDEX_URL === "undefined") return;
 
   let index = null;
+  let initialQ = null;
+  try { initialQ = new URLSearchParams(window.location.search).get("q"); } catch (e) { /* noop */ }
+  if (initialQ) input.value = initialQ;
+
+  function runSearch() {
+    if (!index) return;
+    var qs = norm(input.value).split(/\s+/).filter(Boolean);
+    if (!qs.length) {
+      results.innerHTML = '<p class="search-hint">输入关键词，即时搜索标题、摘要与正文。</p>';
+      return;
+    }
+    render(index.filter(function (p) { return matches(p, qs); }), qs);
+  }
 
   fetch(INDEX_URL, { cache: "no-store" })
     .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function (data) {
       index = data.posts || [];
-      results.innerHTML = '<p class="search-hint">索引已加载（' + index.length + ' 篇文章），输入关键词开始搜索。</p>';
+      if (initialQ) {
+        runSearch();
+      } else {
+        results.innerHTML = '<p class="search-hint">索引已加载（' + index.length + ' 篇文章），输入关键词开始搜索。</p>';
+      }
     })
     .catch(function () {
       results.innerHTML = '<p class="search-hint">索引加载失败：' + INDEX_URL + ' 不存在，请先运行 uv run build.py。</p>';
@@ -63,14 +80,6 @@
   var timer = null;
   input.addEventListener("input", function () {
     clearTimeout(timer);
-    timer = setTimeout(function () {
-      if (!index) return;
-      var qs = norm(input.value).split(/\s+/).filter(Boolean);
-      if (!qs.length) {
-        results.innerHTML = '<p class="search-hint">输入关键词，即时搜索标题、摘要与正文。</p>';
-        return;
-      }
-      render(index.filter(function (p) { return matches(p, qs); }), qs);
-    }, 120);
+    timer = setTimeout(runSearch, 120);
   });
 })();

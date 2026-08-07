@@ -128,7 +128,6 @@ def load_config() -> dict:
             "language": site.get("language", "zh-CN"),
         },
         "social": cfg.get("social", {}) or {},
-        "links": cfg.get("links", []) or [],
         "build": {
             "posts_per_page": int(build.get("posts_per_page", 8)),
             "site_dir": build.get("site_dir", "site"),
@@ -368,20 +367,6 @@ def build_pages(posts, pages, config) -> list[dict]:
     social = config["social"]
     per_page = config["build"]["posts_per_page"]
 
-    # 标签统计
-    tag_posts: dict[str, list[dict]] = {}
-    for p in posts:
-        for t in p["tags"]:
-            tag_posts.setdefault(t["name"], []).append(p)
-
-    ctx_base = {
-        "site": site_cfg,
-        "social": social,
-        "nav_pages": pages,
-        "post_count": len(posts),
-        "build_time": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
-    }
-
     # 标签统计（首页标签墙 / 标签页共用）
     tag_posts: dict[str, list[dict]] = {}
     for p in posts:
@@ -392,6 +377,17 @@ def build_pages(posts, pages, config) -> list[dict]:
         for name, ps in tag_posts.items()
     ]
     tag_items.sort(key=lambda kv: kv[0]["name"])
+
+    ctx_base = {
+        "site": site_cfg,
+        "social": social,
+        "nav_pages": pages,
+        "nav_current": "",
+        "post_count": len(posts),
+        "tag_count": len(tag_items),
+        "total_words": sum(len(p["text"]) for p in posts),
+        "build_time": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
+    }
     generated = []  # [(相对路径, 模板名)]
 
     def render_to(rel_path: Path, template: str, ctx: dict):
@@ -409,6 +405,7 @@ def build_pages(posts, pages, config) -> list[dict]:
         rel = Path("index.html") if page_no == 1 else Path(f"page/{page_no}/index.html")
         render_to(rel, "index.html", {
             **ctx_base, "root": "." if page_no == 1 else "../..",
+            "nav_current": "index",
             "posts": chunk, "total_posts": n, "tag_items": tag_items,
             "page_no": page_no, "total_pages": total_pages,
             "prev_no": prev_no, "next_no": next_no,
@@ -428,23 +425,23 @@ def build_pages(posts, pages, config) -> list[dict]:
     for p in posts:
         by_year.setdefault(p["year"], []).append(p)
     render_to(Path("archive/index.html"), "archive.html", {
-        **ctx_base, "root": "..",
+        **ctx_base, "root": "..", "nav_current": "archive",
         "by_year": sorted(by_year.items(), reverse=True),
     })
 
     # ---- 标签云 + 每个标签的列表页
     render_to(Path("tags/index.html"), "tags.html", {
-        **ctx_base, "root": "..", "tag_items": tag_items,
+        **ctx_base, "root": "..", "nav_current": "tags", "tag_items": tag_items,
     })
     for tag, tag_ps in tag_items:
         render_to(Path("tags") / tag["name"] / "index.html", "tag.html", {
-            **ctx_base, "root": "../..",
+            **ctx_base, "root": "../..", "nav_current": "tags",
             "tag": tag, "posts": tag_ps,
         })
 
     # ---- 搜索页 + 索引
     render_to(Path("search/index.html"), "search.html", {
-        **ctx_base, "root": "..",
+        **ctx_base, "root": "..", "nav_current": "search",
     })
     index = {
         "posts": [
@@ -460,8 +457,7 @@ def build_pages(posts, pages, config) -> list[dict]:
     # ---- 独立页面
     for pg in pages:
         render_to(Path(pg["slug"]) / "index.html", "page.html", {
-            **ctx_base, "root": "..", "page": pg,
-            "link_items": config["links"],
+            **ctx_base, "root": "..", "page": pg, "nav_current": pg["slug"],
         })
 
     # ---- 404 页（终端风：command not found）
@@ -505,13 +501,26 @@ def copy_content_assets(content_dir: Path, site_dir: Path) -> None:
     src = content_dir / "images"
     if src.exists():
         shutil.copytree(src, site_dir / "images", dirs_exist_ok=True)
-        print(f"  复制内容图片: content/images/ → images/")
+        print("  复制内容图片: content/images/ → images/")
     posts_src = content_dir / "posts"
     if posts_src.exists():
         for item in sorted(posts_src.iterdir()):
             if item.is_dir() and not item.name.startswith("."):
                 shutil.copytree(item, site_dir / "posts" / item.name, dirs_exist_ok=True)
                 print(f"  复制文章附件: posts/{item.name}/ → posts/{item.name}/")
+
+
+def check_orphans(site_dir: Path, generated: list) -> None:
+    """检测 site/ 中本次构建未生成的孤立页面（如已删除的文章/页面残留），提示用 --clean 清理"""
+    known = {Path(p).as_posix() for p, _ in generated}
+    known.add("404.html")
+    orphans = []
+    for f in site_dir.rglob("*.html"):
+        rel = f.relative_to(site_dir).as_posix()
+        if rel not in known:
+            orphans.append(rel)
+    if orphans:
+        warn(f"site/ 存在 {len(orphans)} 个旧页面残留（如 {orphans[0]}），建议 uv run build.py --clean 清理")
 
 
 def check_links(site_dir: Path) -> None:
@@ -560,6 +569,7 @@ def main() -> int:
     copy_assets(site_dir)
     copy_content_assets(ROOT / "content", site_dir)
     print(f"  生成 {len(generated)} 个页面，文章 {len(posts)} 篇，标签 {len({t['name'] for p in posts for t in p['tags']})} 个")
+    check_orphans(site_dir, generated)
     check_links(site_dir)
 
     if ERRORS:
